@@ -15,14 +15,14 @@
       <div class="cities__table">
         <div class="column" v-for="(column, index) in table" :key="index+'cityTable'">
           <div class="header">
-            {{ column.headerName }}
+            Погода на {{ column.headerName }}
           </div>
           <template v-if="selectedCity">
             <div class="body">
               Состояние погоды: {{ column.info[0].weather_state_name }}
             </div>
             <div class="body">
-              Темп: {{ column.info[0].the_temp }}
+              Температура: {{ column.info[0].the_temp }}
             </div>
             <div class="body">
               Скорость ветра: {{ column.info[0].wind_speed }}
@@ -46,7 +46,6 @@ export default {
   data() {
     return {
       currentValue: 'Выберите город',
-      currentInfoAboutCity: [],
       selectedCity: false,
       arrayValues: [
         { location: 'Москва', uid: '2122265' },
@@ -57,42 +56,48 @@ export default {
         ],
       selectOpened: false,
       table: [
-        {headerName: 'Вчера', info: []},
-        {headerName: 'Сегодня', info: []},
-        {headerName: 'Завтра', info: []},
+        {headerName: 'вчера', info: []},
+        {headerName: 'сегодня', info: []},
+        {headerName: 'завтра', info: []},
       ]
     }
   },
   methods: {
+    /**
+     * Метод, отвечающий за выбор города из списка
+     */
     onSelect(item) {
-      this.currentInfoAboutCity = item;
       this.currentValue = item.location;
       this.selectOpened = false;
       this.selectedCity = true;
       
       const axios = require('axios');
+
+      //Информация за вчерашний день
       let date = new Date();
       date.setDate(date.getDate() - 1);
       axios({
         method: 'get',
-        url: `https://www.metaweather.com/api/location/${item.uid}/`+ date.toISOString().split('T')[0].replace(/-/g, '/')
+        url: `https://www.metaweather.com/api/location/${item.uid}/${date.toISOString().split('T')[0].replace(/-/g, '/')}`
       })
         .then((response) => {
           this.table[0].info = response.data;
         });
       
+      //Информация за сегодняшний день
       date = new Date();
       axios({
         method: 'get',
-        url: `https://www.metaweather.com/api/location/${item.uid}/`+ date.toISOString().split('T')[0].replace(/-/g, '/')
+        url: `https://www.metaweather.com/api/location/${item.uid}/${date.toISOString().split('T')[0].replace(/-/g, '/')}`
       })
         .then((response) => {
           this.table[1].info = response.data;
         });
+      //Информация за завтрашний день
       date.setDate(date.getDate() + 1);
       axios({
         method: 'get',
-        url: `https://www.metaweather.com/api/location/${item.uid}/`+ date.toISOString().split('T')[0].replace(/-/g, '/')
+        url: `https://www.metaweather.com/api/location/${item.uid}/${date.toISOString().split('T')[0].replace(/-/g, '/')}`
       })
         .then((response) => {
           this.table[2].info = response.data;
@@ -103,49 +108,6 @@ export default {
 </script>
 
 <style lang="less">
-/* Dropdown Button */
-.dropbtn {
-  background-color: #3498DB;
-  color: white;
-  padding: 16px;
-  font-size: 16px;
-  border: none;
-  cursor: pointer;
-  /* Dropdown button on hover & focus */
-  &:hover, &:focus {
-    background-color: #2980B9;
-  }
-}
-/* The container <div> - needed to position the dropdown content */
-.dropdown {
-  position: relative;
-  display: inline-block;
-  &-content {
-    display: none;
-    position: absolute;
-    background-color: #f1f1f1;
-    min-width: 160px;
-    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-    z-index: 1;
-  }
-  &-content a {
-    color: black;
-    padding: 12px 16px;
-    text-decoration: none;
-    display: block;
-  }
-}
-/* Links inside the dropdown */
-.dropdown-content a {
-  color: black;
-  padding: 12px 16px;
-  text-decoration: none;
-  display: flex;
-  &:hover {
-    background-color: #ddd;
-  }
-}
-.show {display:block;}
 *{
   box-sizing: border-box;
 }
@@ -153,6 +115,7 @@ export default {
   width: 1000px;
   margin: 0 auto;
   display: flex;
+  margin-top: 80px;
   .column {
     display: flex;
     flex-direction: column;
