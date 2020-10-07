@@ -70,38 +70,30 @@ export default {
       this.currentValue = item.location;
       this.selectOpened = false;
       this.selectedCity = true;
-      
-      const axios = require('axios');
 
       //Информация за вчерашний день
       let date = new Date();
       date.setDate(date.getDate() - 1);
-      axios({
-        method: 'get',
-        url: `https://www.metaweather.com/api/location/${item.uid}/${date.toISOString().split('T')[0].replace(/-/g, '/')}`
-      })
-        .then((response) => {
-          this.table[0].info = response.data;
-        });
-      
+      let datas = {};
+      let info = [];
+      datas = { date: date, item: item };
+      this.$store.dispatch('getCity', datas);
+      info = this.$store.getter('cities');
+      this.table[0].info = info;
+
       //Информация за сегодняшний день
       date = new Date();
-      axios({
-        method: 'get',
-        url: `https://www.metaweather.com/api/location/${item.uid}/${date.toISOString().split('T')[0].replace(/-/g, '/')}`
-      })
-        .then((response) => {
-          this.table[1].info = response.data;
-        });
+      datas = { date: date, item: item };
+      this.$store.dispatch('getCity', datas);
+      info = this.$store.getter('cities');
+      this.table[1].info = info;
+
       //Информация за завтрашний день
       date.setDate(date.getDate() + 1);
-      axios({
-        method: 'get',
-        url: `https://www.metaweather.com/api/location/${item.uid}/${date.toISOString().split('T')[0].replace(/-/g, '/')}`
-      })
-        .then((response) => {
-          this.table[2].info = response.data;
-        });
+      datas = { date: date, item: item };
+      this.$store.dispatch('getCity', datas);
+      info = this.$store.getter('cities');
+      this.table[2].info = info;
     }
   }
 }
